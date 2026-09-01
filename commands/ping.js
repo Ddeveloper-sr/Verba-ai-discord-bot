@@ -9,11 +9,11 @@ export const pingCommand = new SlashCommandBuilder()
   .setName("ping")
   .setDescription("Show the bot's latency and infrastructure timings");
 
-export function createPingPanel({ botName, websocket, response, database }) {
+export function createPingPanel({ botName, userId, websocket, response, database }) {
   return new ContainerBuilder().addTextDisplayComponents(
     new TextDisplayBuilder().setContent(
       `## ${botName}'s Latency\n` +
-      `Requested by <@${arguments[0]?.userId || "0"}>\n\n` +
+      `Requested by <@${userId}>\n\n` +
       `──────────────\n\n` +
       `• **Core Latency** ::\n` +
       `  └ Websocket     : ${websocket}ms\n` +
