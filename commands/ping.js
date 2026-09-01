@@ -9,18 +9,27 @@ export const pingCommand = new SlashCommandBuilder()
   .setName("ping")
   .setDescription("Show the bot's latency and infrastructure timings");
 
-export function createPingPanel({ botName, userId, websocket, response, database }) {
+const formatMs = (value) => {
+  const number = Number(value);
+  if (!Number.isFinite(number)) return "0ms";
+  if (number < 1) return `${number.toFixed(3)}ms`;
+  if (number < 10) return `${number.toFixed(2)}ms`;
+  return `${Math.round(number)}ms`;
+};
+
+export function createPingPanel({ botName, userName, requestedAt, websocket, response, database }) {
   return new ContainerBuilder()
     .setAccentColor(0x5865f2)
     .addTextDisplayComponents(
-      new TextDisplayBuilder().setContent(`## ${botName}'s Latency\nRequested by <@${userId}> • <t:${Math.floor(Date.now() / 1000)}:R>`),
+      new TextDisplayBuilder().setContent(`## ${botName}'s Latency`),
+      new TextDisplayBuilder().setContent(`Requested by ${userName} • <t:${Math.floor(requestedAt / 1000)}:R>`),
+      new TextDisplayBuilder().setContent("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"),
       new TextDisplayBuilder().setContent(
-        "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n" +
         "• **Core Latency**  ::\n" +
-        `  └  Websocket       :  ${websocket}ms\n` +
-        `  └  Response        :  ${response}ms\n\n` +
+        `  └  Websocket       :  ${formatMs(websocket)}\n` +
+        `  └  Response        :  ${formatMs(response)}\n\n` +
         "• **Infrastructure**  ::\n" +
-        `  └  Database        :  ${database}ms`
+        `  └  Database        :  ${formatMs(database)}`
       )
     );
 }
