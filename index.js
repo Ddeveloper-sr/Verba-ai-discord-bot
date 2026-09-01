@@ -6,13 +6,13 @@ import {
   Partials,
   TextInputBuilder,
   TextInputStyle,
-  MessageFlags,
 } from "discord.js";
 import { showBanner, logger } from "./logger.js";
-import { addMemory, closeDatabase, getMemories, getSession, saveSession } from "./database.js";
+import { addMemory, closeDatabase, getMemories, getSession, measureDatabaseLatency, saveSession } from "./database.js";
 import { generateReply } from "./verba.js";
 import { applyNameStyle, resetNameStyle } from "./name-style.js";
 import { createNameStylePanel, nameStyleCommand, nameStyleFlags } from "./commands/namestyle.js";
+import { createPingPanel, pingCommand, pingFlags } from "./commands/ping.js";
 
 for (const key of ["DISCORD_TOKEN", "VERBA_API_KEY", "VERBA_CHARACTER"]) {
   if (!process.env[key]) throw new Error(`Missing required environment variable: ${key}`);
@@ -71,14 +71,34 @@ client.once("ready", async () => {
   logger.success(`Logged in as ${client.user.tag}`);
 
   try {
-    await client.application.commands.set([nameStyleCommand.toJSON()]);
-    logger.success("Registered /namestyle");
+    await client.application.commands.set([nameStyleCommand.toJSON(), pingCommand.toJSON()]);
+    logger.success("Registered /namestyle and /ping");
   } catch (error) {
     logger.error(`Command registration failed: ${error.message}`);
   }
 });
 
 client.on("interactionCreate", async (interaction) => {
+  if (interaction.isChatInputCommand() && interaction.commandName === "ping") {
+    const responseStart = performance.now();
+    await interaction.deferReply({ flags: pingFlags });
+    const response = Math.max(0, Math.round((performance.now() - responseStart) * 1000) / 1000);
+    const websocket = Math.max(0, Math.round(client.ws.ping * 1000) / 1000);
+    const database = measureDatabaseLatency();
+
+    await interaction.editReply({
+      flags: pingFlags,
+      components: [createPingPanel({
+        botName: client.user?.username || "Bot",
+        userId: interaction.user.id,
+        websocket,
+        response,
+        database,
+      })],
+    });
+    return;
+  }
+
   if (interaction.isChatInputCommand() && interaction.commandName === "namestyle") {
     if (!interaction.guildId) {
       await interaction.reply({ content: "This command can only be used in a server.", ephemeral: true });
