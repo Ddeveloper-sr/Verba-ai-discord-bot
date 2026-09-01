@@ -19,17 +19,28 @@ const formatMs = (value) => {
   return `${Math.round(number)}ms`;
 };
 
-export function createPingPanel({ botName, userName, requestedAt, websocket, response, database }) {
-  const requestedTime = Math.floor(requestedAt / 1000);
+export function createPingPanel({
+  botName = "Bot",
+  userName = "Unknown User",
+  requestedAt = Date.now(),
+  websocket = 0,
+  response = 0,
+  database = 0,
+}) {
+  const requestedTime = Math.floor(Number(requestedAt) / 1000) || Math.floor(Date.now() / 1000);
 
   return new ContainerBuilder()
     .setAccentColor(0x5865f2)
     .addTextDisplayComponents(
       new TextDisplayBuilder().setContent(`## ${botName}'s Latency`),
-      new TextDisplayBuilder().setContent(`Requested by ${userName} • <t:${requestedTime}:R>`)
+      new TextDisplayBuilder().setContent(
+        `Requested by ${userName} • <t:${requestedTime}:R>`
+      )
     )
     .addSeparatorComponents(
-      new SeparatorBuilder().setSpacing(SeparatorSpacingSize.Small)
+      new SeparatorBuilder()
+        .setDivider(true)
+        .setSpacing(SeparatorSpacingSize.Small)
     )
     .addTextDisplayComponents(
       new TextDisplayBuilder().setContent(
