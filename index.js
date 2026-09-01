@@ -90,7 +90,8 @@ client.on("interactionCreate", async (interaction) => {
       flags: pingFlags,
       components: [createPingPanel({
         botName: client.user?.username || "Bot",
-        userId: interaction.user.id,
+        userName: interaction.user.toString(),
+        requestedAt: Date.now(),
         websocket,
         response,
         database,
