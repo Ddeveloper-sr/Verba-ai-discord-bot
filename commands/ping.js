@@ -1,6 +1,8 @@
 import {
   ContainerBuilder,
   MessageFlags,
+  SeparatorBuilder,
+  SeparatorSpacingSize,
   SlashCommandBuilder,
   TextDisplayBuilder,
 } from "discord.js";
@@ -22,8 +24,12 @@ export function createPingPanel({ botName, userName, requestedAt, websocket, res
     .setAccentColor(0x5865f2)
     .addTextDisplayComponents(
       new TextDisplayBuilder().setContent(`## ${botName}'s Latency`),
-      new TextDisplayBuilder().setContent(`Requested by ${userName} • <t:${Math.floor(requestedAt / 1000)}:R>`),
-      new TextDisplayBuilder().setContent("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"),
+      new TextDisplayBuilder().setContent(`Requested by ${userName} • <t:${Math.floor(requestedAt / 1000)}:R>`)
+    )
+    .addSeparatorComponents(
+      new SeparatorBuilder().setSpacing(SeparatorSpacingSize.Small)
+    )
+    .addTextDisplayComponents(
       new TextDisplayBuilder().setContent(
         "• **Core Latency**  ::\n" +
         `  └  Websocket       :  ${formatMs(websocket)}\n` +
